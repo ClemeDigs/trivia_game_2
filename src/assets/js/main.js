@@ -23,8 +23,6 @@ msgError.textContent = '';
 // Vérifier si un utilisateur est déjà sauvegardé
 const currentUser = User.getCurrentUser();
 
-pageChanger.switchScreen('accueil');  // Afficher l'écran d'accueil par défaut au début
-
 if (currentUser) {
     // Si un utilisateur est trouvé, on passe directement à l'écran du jeu
     pageChanger.switchScreen('game');

@@ -49,6 +49,7 @@ export default class PageChanger {
                 this.ecranAccueil.classList.remove('hidden');
                 this.ecranAccueil.classList.add('flex');
                 this.header.classList.remove('bg-beach');
+                this.header.classList.remove('bg-mountain');
                 this.header.classList.add('bg-desert');
                 this.welcome.classList.remove('hidden');
                 this.result.classList.add('hidden');

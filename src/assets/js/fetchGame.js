@@ -1,6 +1,7 @@
 import './settings.js';
 import PageChanger from './Page-Changer.js';
 import ScoreManager from './ScoreManager.js';
+import User from './User';
 
 const pageChanger = new PageChanger();
 const scoreManager = new ScoreManager();
@@ -15,23 +16,55 @@ const progressHtml = document.querySelector('.progress');
 const modaleContinue = document.querySelector('.modale-continue');
 const btnContinue = document.querySelector('.btn-continue');
 const btnRestart = document.querySelector('.btn-restart');
+const btnsStart = document.querySelectorAll('.btn-start');
+const inputName = document.getElementById('user-name');
+const choosenAvatar = document.querySelector('.img-avatar');
+const currentNameHtml = document.querySelector('.current-name');
+const currentAvatarHtml = document.querySelector('.current-avatar');
+const msgError = document.querySelector('.msg-error');
 let oldGame = JSON.parse(localStorage.getItem('oldGame')) || null;
+const currentUser = User.getCurrentUser();
+
+
+
+btnsStart.forEach(btnStart => {
+    btnStart.addEventListener('click', () => {
+        if (inputName.value.length > 1) {
+            msgError.textContent = '';
+            const user = new User(inputName.value, choosenAvatar.getAttribute('src'));
+            user.saveCurrentUser(); 
+            pageChanger.switchScreen('game');  // Passe à l'écran "jeu"
+            fetchGame(getUrlBySettings());   // Charge les données du jeu après le changement d'écran
+        } else {
+            msgError.textContent = 'Veuillez entrer un nom d\'utilisateur.';
+        }
+    });
+});
 
 function fetchGame(url) {
     return fetch(url)
-        .then((response) => response.json())
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok ' + response.statusText);
+            }
+            return response.json();
+        })
         .then((data) => {
             game = data;
+            localStorage.setItem('oldGame', JSON.stringify(game));
             displayQuestion();
+        })
+        .catch((error) => {
+            console.error('Il y a eu un problème avec le fetch: ', error);
         });
-};
+}
 
 function getUrlBySettings() {
     const url = 'https://opentdb.com/api.php';
     let savedSettings = JSON.parse(localStorage.getItem('settings'));
 
     if (!savedSettings) {
-        return url + '?amount=10';  // Définir une valeur par défaut si aucun paramètre n'est trouvé
+        return url + '?amount=10';
     }
 
     let settingsUrl = `${url}?amount=${savedSettings.nbQuestions}`;
@@ -55,8 +88,6 @@ function displayScore() {
 }
 
 function displayQuestion() {
-/*     gameToLocalStorage(); */
-    
     // Vérifier que 'game.results' est bien défini et que c'est un tableau
     if (!game.results || !Array.isArray(game.results)) {
         console.error('Les résultats du jeu ne sont pas disponibles ou sont invalides');
@@ -100,23 +131,49 @@ function verifyAnswer(selectedAnswer, correctAnswer) {
         scoreManager.incrementScore();
     }
     currentQuestionIndex++;
+    localStorage.setItem('currentQuestion', JSON.stringify(currentQuestionIndex));
     displayQuestion();
     displayScore();
 }
 
+if (oldGame) {
+    modaleContinue.setAttribute('open', '');
+    let currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    console.log(currentUser);
+    currentNameHtml.textContent = currentUser.name;
+    currentAvatarHtml.setAttribute('src', currentUser.avatar);
+    btnContinue.addEventListener('click', () => {
+        continueGame();
+    });
+    btnRestart.addEventListener('click', () => {
+        restartGame();
+    });
+} else {
+    pageChanger.switchScreen('accueil');
+}
+
+function gameFromLocalStorage() {
+    let oldGameData = localStorage.getItem('oldGame');
+    
+    if (oldGameData) {
+        game = JSON.parse(oldGameData);
+        currentQuestionIndex = JSON.parse(localStorage.getItem('currentQuestion')) || 0;
+    }
+}
 
 // Fonction pour continuer la partie
 function continueGame() {
     modaleContinue.removeAttribute('open');
-    displayQuestion(); // Reprendre la partie là où elle s'était arrêtée
+    displayQuestion();
 }
 
 function restartGame() {
     game = {};
-    // Supprimer les données du jeu dans le localStorage
+    currentQuestionIndex = 0; 
     localStorage.removeItem('oldGame');
     localStorage.removeItem('currentQuestion');
     localStorage.removeItem('currentUser');
+    progressHtml.style.width = 0 + '%';
     pageChanger.switchScreen('accueil');
 }
 
@@ -129,7 +186,6 @@ function endGame() {
     localStorage.removeItem('currentQuestion');
     localStorage.removeItem('currentUser');
     // Ajouter un état de fin de partie
-    localStorage.setItem('gameFinished', 'true'); // Indicateur de fin de partie
     scoreManager.addScore(scoreManager.currentScorePercent, totalQuestions);
     questionHtml.textContent = `Fin du jeu ! Votre score : ${scoreManager.getCurrentScore()}/${totalQuestions}`;
     responsesHtml.forEach(response => response.textContent = '');
@@ -139,87 +195,17 @@ function endGame() {
 // Appeler displayScore et gameFromLocalStorage pour restaurer le jeu
 displayScore();
 fetchGame(getUrlBySettings());
+gameFromLocalStorage();
 
-
-/* gameFromLocalStorage(); */
-
-
-/* function gameToLocalStorage(){
-    localStorage.setItem('oldGame', JSON.stringify(game));
-    localStorage.setItem('currentQuestion', currentQuestionIndex);
-} */
-
-
-
-/* function gameFromLocalStorage() {
-    // Vérifier si la partie est terminée
-    const isGameFinished = localStorage.getItem('gameFinished');
-
-    if (isGameFinished === 'true') {
-        // Supprimer l'indicateur de fin de jeu et rediriger vers l'accueil
-        localStorage.removeItem('gameFinished');
-        pageChanger.switchScreen('default');
-        return;
-    }
-
-    let oldGameData = localStorage.getItem('oldGame');
-    
-    if (oldGameData) {
-        game = JSON.parse(oldGameData);
-        currentQuestionIndex = JSON.parse(localStorage.getItem('currentQuestion')) || 0;
-
-        if (game.results && Array.isArray(game.results)) {
-            // Afficher la modale continue pour proposer de reprendre la partie
-            modaleContinue.setAttribute('open', '');
-
-            // Suppression des anciens écouteurs d'événements pour éviter la duplication
-            btnContinue.removeEventListener('click', continueGame);
-            btnRestart.removeEventListener('click', restartGame);
-
-            // Ajout des nouveaux écouteurs d'événements
-            btnContinue.addEventListener('click', continueGame);
-            btnRestart.addEventListener('click', restartGame);
-        } else {
-            console.error("Les résultats du jeu n'ont pas été trouvés dans le localStorage");
-            pageChanger.switchScreen('default');
-        }
-    } else {
-        console.warn('Aucune partie précédente trouvée dans le localStorage');
-        pageChanger.switchScreen('default');
-    }
-} */
-
-
-/* function gameFromLocalStorage(){
-    // Charger les anciennes données
-    let oldGameData = localStorage.getItem('oldGame');
-    
-    // Vérifier que les données existent et les parser si elles sont présentes
-    if (oldGameData) {
-        modaleContinue.setAttribute('open', '');
-        btnContinue.addEventListener('click', () => {
-            // S'assurer que 'game.results' existe bien
-            if (game.results && Array.isArray(game.results)) {
-                currentQuestionIndex = JSON.parse(localStorage.getItem('currentQuestion')) || 0;
-                displayQuestion();
-            } else {
-                console.error("Les résultats du jeu n'ont pas été trouvés dans le localStorage");
-                // Gérer l'erreur, peut-être relancer un nouveau fetch ou afficher un message d'erreur
-            }
-            modaleContinue.setAttribute('closing', '');
-        })
-
-        btnRestart.addEventListener('click', () => {
-            game = {};
-            // Supprimer les données du jeu dans le localStorage
-            localStorage.removeItem('oldGame');
-            localStorage.removeItem('currentQuestion');
-            pageChanger.switchScreen('default');
-            modaleContinue.setAttribute('closing', '');
-        }) 
-        game = JSON.parse(oldGameData);
-
-    } else {
-        console.warn('Aucune partie précédente trouvée dans le localStorage');
-    }
-} */
+if (oldGame) {
+    pageChanger.switchScreen('jeu');
+    modaleContinue.setAttribute('open', '');
+    btnContinue.addEventListener('click', () => {
+        continueGame();
+    });
+    btnRestart.addEventListener('click', () => {
+        restartGame();
+    });
+} else {
+    pageChanger.switchScreen('accueil');  // Aller à l'écran d'accueil s'il n'y a pas de jeu en cours
+}
