@@ -1,3 +1,4 @@
+
 export default class PageChanger {
     constructor() {
         this.ecranAccueil = document.querySelector('.ecran-accueil');
@@ -33,6 +34,7 @@ export default class PageChanger {
                 this.btnsSettings.forEach(btn => {
                     btn.setAttribute('disabled', true);
                 })
+
                 break;
 
             case 'end':

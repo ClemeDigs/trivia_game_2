@@ -2,9 +2,11 @@ import './settings.js';
 import PageChanger from './Page-Changer.js';
 import ScoreManager from './ScoreManager.js';
 import User from './User';
+import BestScores from './BestScores.js'
 
 const pageChanger = new PageChanger();
 const scoreManager = new ScoreManager();
+
 
 let game = {};
 let currentQuestionIndex = 0;
@@ -23,8 +25,8 @@ const currentNameHtml = document.querySelector('.current-name');
 const currentAvatarHtml = document.querySelector('.current-avatar');
 const msgError = document.querySelector('.msg-error');
 let oldGame = JSON.parse(localStorage.getItem('oldGame')) || null;
-const currentUser = User.getCurrentUser();
-
+export let bestScores = JSON.parse(localStorage.getItem('bestScores')) || [];
+const ecranFin = document.querySelector('.ecran-fin')
 
 
 btnsStart.forEach(btnStart => {
@@ -33,8 +35,8 @@ btnsStart.forEach(btnStart => {
             msgError.textContent = '';
             const user = new User(inputName.value, choosenAvatar.getAttribute('src'));
             user.saveCurrentUser(); 
-            pageChanger.switchScreen('game');  // Passe à l'écran "jeu"
-            fetchGame(getUrlBySettings());   // Charge les données du jeu après le changement d'écran
+            pageChanger.switchScreen('game'); 
+            fetchGame(getUrlBySettings()); 
         } else {
             msgError.textContent = 'Veuillez entrer un nom d\'utilisateur.';
         }
@@ -43,21 +45,17 @@ btnsStart.forEach(btnStart => {
 
 function fetchGame(url) {
     return fetch(url)
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok ' + response.statusText);
-            }
-            return response.json();
-        })
+        .then((response) => response.json())
         .then((data) => {
             game = data;
             localStorage.setItem('oldGame', JSON.stringify(game));
             displayQuestion();
         })
         .catch((error) => {
-            console.error('Il y a eu un problème avec le fetch: ', error);
+            console.error('Erreur de fetch:', error);
         });
-}
+};
+
 
 function getUrlBySettings() {
     const url = 'https://opentdb.com/api.php';
@@ -88,12 +86,6 @@ function displayScore() {
 }
 
 function displayQuestion() {
-    // Vérifier que 'game.results' est bien défini et que c'est un tableau
-    if (!game.results || !Array.isArray(game.results)) {
-        console.error('Les résultats du jeu ne sont pas disponibles ou sont invalides');
-        return endGame(); // Ou autre logique pour gérer le cas d'erreur
-    }
-
     if (currentQuestionIndex >= game.results.length) {
         return endGame();
     }
@@ -105,7 +97,6 @@ function displayQuestion() {
     let responses = game.results[currentQuestionIndex].incorrect_answers.concat(correctAnswer);
     responses.sort(() => Math.random() - 0.5);
 
-    // Si la question a seulement 2 réponses (par exemple, type vrai/faux)
     if (responses.length === 2) {
         responsesHtml.forEach((responseHtml, index) => {
             if (index < 2) {
@@ -113,7 +104,7 @@ function displayQuestion() {
                 responseHtml.textContent = responses[index];
                 responseHtml.onclick = () => verifyAnswer(responses[index], correctAnswer);
             } else {
-                responseHtml.classList.add('hidden'); // Cacher les boutons 3 et 4
+                responseHtml.classList.add('hidden');
             }
         });
     } else {
@@ -136,33 +127,22 @@ function verifyAnswer(selectedAnswer, correctAnswer) {
     displayScore();
 }
 
-if (oldGame) {
-    modaleContinue.setAttribute('open', '');
-    let currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    console.log(currentUser);
-    currentNameHtml.textContent = currentUser.name;
-    currentAvatarHtml.setAttribute('src', currentUser.avatar);
-    btnContinue.addEventListener('click', () => {
-        continueGame();
-    });
-    btnRestart.addEventListener('click', () => {
-        restartGame();
-    });
-} else {
-    pageChanger.switchScreen('accueil');
-}
-
 function gameFromLocalStorage() {
     let oldGameData = localStorage.getItem('oldGame');
-    
     if (oldGameData) {
         game = JSON.parse(oldGameData);
         currentQuestionIndex = JSON.parse(localStorage.getItem('currentQuestion')) || 0;
     }
 }
 
-// Fonction pour continuer la partie
+function resetLocalStorage() {
+    localStorage.removeItem('oldGame');
+    localStorage.removeItem('currentQuestion');
+    localStorage.removeItem('currentUser');
+}
+
 function continueGame() {
+    modaleContinue.setAttribute('closing', '');
     modaleContinue.removeAttribute('open');
     displayQuestion();
 }
@@ -170,42 +150,47 @@ function continueGame() {
 function restartGame() {
     game = {};
     currentQuestionIndex = 0; 
-    localStorage.removeItem('oldGame');
-    localStorage.removeItem('currentQuestion');
-    localStorage.removeItem('currentUser');
+    resetLocalStorage();
     progressHtml.style.width = 0 + '%';
     pageChanger.switchScreen('accueil');
+    modaleContinue.setAttribute('closing', '');
+    modaleContinue.removeAttribute('open');
 }
 
 function endGame() {
     displayScore();
-    const totalQuestions = game.results ? game.results.length : 0;
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    const userScore = {
+        user: currentUser,
+        score: scoreManager.calculateScorePercent(currentQuestionIndex)
+    };
+    bestScores.push(userScore);
+    localStorage.setItem('bestScores', JSON.stringify(bestScores));
     game = {};
-    // Supprimer les données du jeu dans le localStorage
-    localStorage.removeItem('oldGame');
-    localStorage.removeItem('currentQuestion');
-    localStorage.removeItem('currentUser');
-    // Ajouter un état de fin de partie
-    scoreManager.addScore(scoreManager.currentScorePercent, totalQuestions);
-    questionHtml.textContent = `Fin du jeu ! Votre score : ${scoreManager.getCurrentScore()}/${totalQuestions}`;
+    resetLocalStorage();
+    questionHtml.textContent = '';
     responsesHtml.forEach(response => response.textContent = '');
+    currentQuestionIndex = 0;
     pageChanger.switchScreen('end');
+    const bestScoresInstance = new BestScores(bestScores);
+    const scoresHtml = bestScoresInstance.toBestScoreLigne();
+    ecranFin.appendChild(scoresHtml);
 }
 
-// Appeler displayScore et gameFromLocalStorage pour restaurer le jeu
 displayScore();
-fetchGame(getUrlBySettings());
 gameFromLocalStorage();
 
-if (oldGame) {
+if (oldGame && Array.isArray(oldGame.results) && oldGame.results.length > 0) {
     pageChanger.switchScreen('jeu');
+    gameFromLocalStorage();
     modaleContinue.setAttribute('open', '');
-    btnContinue.addEventListener('click', () => {
-        continueGame();
-    });
-    btnRestart.addEventListener('click', () => {
-        restartGame();
-    });
+    let currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    currentNameHtml.textContent = currentUser.name;
+    currentAvatarHtml.setAttribute('src', currentUser.avatar);
 } else {
-    pageChanger.switchScreen('accueil');  // Aller à l'écran d'accueil s'il n'y a pas de jeu en cours
+    resetLocalStorage();
+    pageChanger.switchScreen('accueil');
 }
+
+btnContinue.addEventListener('click', continueGame);
+btnRestart.addEventListener('click', restartGame);

@@ -36,7 +36,7 @@
     </header>
 
     <main class="bg-offWhite w-full min-h-[60vh] md:min-h-[64vh] relative flex justify-center rounded-t-[100px] max-w-[1920px]">
-      <img class="img-avatar drop-shadow-trivia absolute top-[-60px] md:top-[-100px] w-[120px] md:w-[200px]" src="./assets/img/chat.svg" alt="avatar">
+      <img class="img-avatar drop-shadow-trivia absolute top-[-50px] md:top-[-80px] w-[100px] md:w-[160px]" src="./assets/img/chat.svg" alt="avatar">
 
       <section class="ecran-accueil bg-offWhite rounded-t-[8rem] max-w-[1920px] px-12 py-20 md:py-12 md:max-h-full md:mt-24 flex-col justify-between flex">
 
@@ -97,7 +97,9 @@
 
 
 
-      <section class="ecran-fin"></section>
+      <section class="ecran-fin">
+        
+      </section>
 
       <section class="dialog modale-continue">
         <div class="continue-screen w-1/2 h-1/2 flex flex-col justify-self-center self-center p-8 bg-offWhite gap-4 rounded-[30px]">
@@ -119,58 +121,60 @@
           <div class="background-settings h-full w-full p-4 bg-transWhite backdrop-blur-sm rounded-l-[80px] ">
             <div class="header-settings flex justify-end">
               <h3 class="text-h3 font-semibold text-center w-full">Settings</h3>
-              <button class="btn-close bg-black text-offWhite font-semibold py-2 px-4 border-none rounded-full hover:drop-shadow-trivia"><i class="fa-solid fa-xmark"></i></button>
+              <button class="btn-close bg-black text-offWhite font-semibold py-2 px-4 border-none rounded-full hover:drop-shadow-trivia">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
             </div>
-
+      
             <form class="settings-inputs flex flex-col gap-4">
-
+      
               <div>
                 <label for="category">Category</label>
                 <select name="category" id="category">
                   <option value="any">Any</option>
                 </select>
               </div>
-
+      
               <div>
                 <p>Difficulty</p>
                 <div class="inputs-difficulty flex flex-col">
                   <div class="flex">
-                    <input type="radio" id="difficulty" name="difficulty" value="any" />
+                    <input type="radio" id="difficulty-any" name="difficulty" value="any" />
                     <label for="difficulty-any">Any</label>
                   </div>
                   <div class="flex">
-                    <input type="radio" id="difficulty" name="difficulty" value="easy" />
+                    <input type="radio" id="difficulty-easy" name="difficulty" value="easy" />
                     <label for="difficulty-easy">Easy</label>
                   </div>
                   <div class="flex">
-                    <input type="radio" id="difficulty" name="difficulty" value="medium" />
+                    <input type="radio" id="difficulty-medium" name="difficulty" value="medium" />
                     <label for="difficulty-medium">Medium</label>
                   </div>
                   <div class="flex">
-                    <input type="radio" id="difficulty" name="difficulty" value="hard"/>
+                    <input type="radio" id="difficulty-hard" name="difficulty" value="hard"/>
                     <label for="difficulty-hard">Hard</label>
                   </div>
                 </div>
               </div>
-
+      
               <div>
                 <p>Type</p>
                 <div class="inputs-type flex flex-col">
                   <div class="flex">
-                    <input type="radio" id="type" name="type" value="any" />
+                    <input type="radio" id="type-any" name="type" value="any" />
                     <label for="type-any">Any</label>
                   </div>
                   <div class="flex">
-                    <input type="radio" id="type" name="type" value="multiple" />
+                    <input type="radio" id="type-multiple" name="type" value="multiple" />
                     <label for="type-multiple">Multiple choices</label>
                   </div>
                   <div class="flex">
-                    <input type="radio" id="type" name="type" value="boolean" />
+                    <input type="radio" id="type-t-f" name="type" value="boolean" />
                     <label for="type-t-f">True or false</label>
                   </div>
                 </div>
               </div>
-
+      
               <div class="nb-question">
                 <label for="nb-question">Number of questions</label>
                 <div class="flex">
@@ -187,7 +191,6 @@
               </div>
             </form>
           </div>
-          
         </div>
       </section>
 
