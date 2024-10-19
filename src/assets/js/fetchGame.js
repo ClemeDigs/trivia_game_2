@@ -26,19 +26,27 @@ const currentAvatarHtml = document.querySelector('.current-avatar');
 const msgError = document.querySelector('.msg-error');
 let oldGame = JSON.parse(localStorage.getItem('oldGame')) || null;
 export let bestScores = JSON.parse(localStorage.getItem('bestScores')) || [];
-const ecranFin = document.querySelector('.ecran-fin')
+const ecranFin = document.querySelector('.ecran-fin');
+let scoresHtml = '';
 
+const currentUser = User.getCurrentUser();
 
 btnsStart.forEach(btnStart => {
     btnStart.addEventListener('click', () => {
-        if (inputName.value.length > 1) {
-            msgError.textContent = '';
-            const user = new User(inputName.value, choosenAvatar.getAttribute('src'));
-            user.saveCurrentUser(); 
-            pageChanger.switchScreen('game'); 
-            fetchGame(getUrlBySettings()); 
+        console.log(pageChanger.currentScreen);
+        if (pageChanger.currentScreen === 'end') {
+            restartGame();
+            pageChanger.switchScreen('accueil');
         } else {
-            msgError.textContent = 'Veuillez entrer un nom d\'utilisateur.';
+            if (inputName.value.length > 1) {
+                msgError.textContent = '';
+                const user = new User(inputName.value, choosenAvatar.getAttribute('src'));
+                user.saveCurrentUser();
+                pageChanger.switchScreen('game');
+                fetchGame(getUrlBySettings());
+            } else {
+                msgError.textContent = 'Veuillez entrer un nom d\'utilisateur.';
+            }
         }
     });
 });
@@ -86,6 +94,7 @@ function displayScore() {
 }
 
 function displayQuestion() {
+    console.log(pageChanger.currentScreen)
     if (currentQuestionIndex >= game.results.length) {
         return endGame();
     }
@@ -145,6 +154,7 @@ function continueGame() {
     modaleContinue.setAttribute('closing', '');
     modaleContinue.removeAttribute('open');
     displayQuestion();
+    displayScore();
 }
 
 function restartGame() {
@@ -152,12 +162,17 @@ function restartGame() {
     currentQuestionIndex = 0; 
     resetLocalStorage();
     progressHtml.style.width = 0 + '%';
+    questionHtml.textContent = '';
+    responsesHtml.forEach(response => response.textContent = '');
     pageChanger.switchScreen('accueil');
     modaleContinue.setAttribute('closing', '');
     modaleContinue.removeAttribute('open');
+    scoresHtml.innerHTML = '';
 }
 
 function endGame() {
+    pageChanger.switchScreen('end');
+    console.log(pageChanger.currentScreen)
     displayScore();
     const currentUser = JSON.parse(localStorage.getItem('currentUser'));
     const userScore = {
@@ -167,14 +182,12 @@ function endGame() {
     bestScores.push(userScore);
     localStorage.setItem('bestScores', JSON.stringify(bestScores));
     game = {};
-    resetLocalStorage();
     questionHtml.textContent = '';
     responsesHtml.forEach(response => response.textContent = '');
-    currentQuestionIndex = 0;
-    pageChanger.switchScreen('end');
     const bestScoresInstance = new BestScores(bestScores);
-    const scoresHtml = bestScoresInstance.toBestScoreLigne();
+    scoresHtml = bestScoresInstance.toBestScoreLigne();
     ecranFin.appendChild(scoresHtml);
+    resetLocalStorage();
 }
 
 displayScore();

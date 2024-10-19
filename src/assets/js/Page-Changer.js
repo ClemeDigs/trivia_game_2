@@ -8,6 +8,8 @@ export default class PageChanger {
         this.welcome = document.querySelector('.welcome');
         this.result = document.querySelector('.result-wrapper');
         this.btnsSettings = document.querySelectorAll('.btn-settings');
+        this.btnsStart = document.querySelectorAll('.btn-start');
+        this.currentScreen = 'accueil';
     }
 
     hideAllScreens() {
@@ -21,9 +23,12 @@ export default class PageChanger {
 
     switchScreen(screenName) {
         this.hideAllScreens();
-
+        this.currentScreen = screenName;
+        console.log(`Switching to screen: ${screenName}`); // Ajoute ce log
+    
         switch (screenName) {
             case 'game':
+                console.log("Switching to Game Screen"); // Log
                 this.ecranJeu.classList.remove('hidden');
                 this.ecranJeu.classList.add('flex');
                 this.header.classList.remove('bg-desert');
@@ -31,23 +36,30 @@ export default class PageChanger {
                 this.welcome.classList.add('hidden');
                 this.result.classList.remove('hidden');
                 this.result.classList.add('flex');
+                this.btnsStart.forEach(btn => {
+                    btn.setAttribute('disabled', true);
+                });
                 this.btnsSettings.forEach(btn => {
                     btn.setAttribute('disabled', true);
-                })
-
+                });
                 break;
-
+    
             case 'end':
+                console.log("Switching to End Screen"); // Log
                 this.ecranFin.classList.remove('hidden');
                 this.ecranFin.classList.add('flex');
                 this.header.classList.remove('bg-mountain');
                 this.header.classList.add('bg-beach');
+                this.btnsStart.forEach(btn => {
+                    btn.removeAttribute('disabled');
+                });
                 this.btnsSettings.forEach(btn => {
                     btn.removeAttribute('disabled');
-                })
+                });
                 break;
-
-                case 'accueil':
+    
+            case 'accueil':
+                console.log("Switching to Accueil Screen"); // Log
                 this.ecranAccueil.classList.remove('hidden');
                 this.ecranAccueil.classList.add('flex');
                 this.header.classList.remove('bg-beach');
@@ -58,7 +70,12 @@ export default class PageChanger {
                 this.result.classList.remove('flex');
                 this.btnsSettings.forEach(btn => {
                     btn.removeAttribute('disabled');
-                })
+                });
+                this.btnsStart.forEach(btn => {
+                    btn.removeAttribute('disabled');
+                });
         }
     }
+    
+
 }
