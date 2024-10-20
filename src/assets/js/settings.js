@@ -6,6 +6,7 @@ const typeRadios = document.querySelectorAll('input[name="type"]');
 const nbQuestionsInput = document.querySelector('#nb-question');
 const btnSave = document.querySelector('.btn-save');
 const btnReset = document.querySelector('.btn-reset');
+const nbQuestionIndicator = document.querySelector('.nb-question-indicator');
 
 // Objet pour stocker les paramètres de jeu
 let settings = {
@@ -83,8 +84,14 @@ btnReset.addEventListener('click', (e) => {
     console.log('Paramètres réinitialisés');
 });
 
+nbQuestionsInput.addEventListener('change', () => {
+    nbQuestionIndicator.textContent = nbQuestionsInput.value;
+    nbQuestionIndicator.className = `nb-question-indicator w-full pl-[${(nbQuestionsInput.value)*2}%]`;
+})
+
+
 // Charger les paramètres à partir du localStorage au chargement de la page
-window.addEventListener('load', () => {
+
     const savedSettings = localStorage.getItem('settings');
     if (savedSettings) {
         // Si des paramètres sont trouvés, les appliquer
@@ -92,6 +99,7 @@ window.addEventListener('load', () => {
 
         // Appliquer les valeurs aux éléments du formulaire
         categoriesSelect.value = settings.category || 'any';
+
         difficultyRadios.forEach((radio) => {
             if (radio.value === settings.difficulty) {
                 radio.checked = true;
@@ -103,5 +111,7 @@ window.addEventListener('load', () => {
             }
         });
         nbQuestionsInput.value = settings.nbQuestions;
+        nbQuestionIndicator.textContent = nbQuestionsInput.value;
+        nbQuestionIndicator.className = `nb-question-indicator w-full pl-[${(nbQuestionsInput.value)*2}%]`;
     }
-});
+;
