@@ -114,80 +114,89 @@
         </div>
       </section>
 
-      <section id="best-scores" class="dialog modale-best-scores"></section>
+      <section id="best-scores" class="dialog modale-best-scores z-50">
+        <div class="h-[90%] w-10/12 md:w-3/4 border-[10px] rounded-[100px] justify-self-center self-center border-offWhite bg-beach bg-[length:auto_100%] flex justify-center">
+          <div class="h-full w-full md:w-2/3 rounded-[90px] md:rounded-none bg-offWhite bg-opacity-50 bg-blend-screen backdrop-blur-sm p-4">
+            <h3 class="text-h2 font-semibold text-center w-full px-8">Best Scores</h3>
+            <div class="best-scores-modale"></div>
+          </div>
+        </div>
+      </section>
 
-      <section id="settings" class="dialog modale-settings">
-        <div class="h-full w-3/4 justify-self-end bg-mountain bg-[length:auto_100%] rounded-l-[90px] border-[10px] border-offWhite">
-          <div class="background-settings h-full w-full p-4 bg-transWhite backdrop-blur-sm rounded-l-[80px] ">
+
+
+      <section id="settings" class="dialog modale-settings z-50">
+        <div class="h-full w-3/4 md:w-1/3 justify-self-end bg-mountain bg-[length:auto_100%] rounded-l-[90px] border-[10px] border-offWhite">
+          <div class="background-settings h-full w-full md:w-3/4 p-4 bg-offWhite bg-opacity-50 bg-blend-screen backdrop-blur-sm rounded-l-[80px] md:rounded-none md:m-auto">
             <div class="header-settings flex justify-end">
-              <h3 class="text-h3 font-semibold text-center w-full">Settings</h3>
-              <button class="btn-close bg-black text-offWhite font-semibold py-2 px-4 border-none rounded-full hover:drop-shadow-trivia">
-                <i class="fa-solid fa-xmark"></i>
+              <h3 class="text-h3 font-semibold text-start w-full px-8">Settings</h3>
+              <button class="btn-close bg-black text-offWhite font-semibold py-1 px-3 border-none rounded-full hover:drop-shadow-trivia">
+                <i class="fa-solid fa-xmark text-2xl"></i>
               </button>
             </div>
       
-            <form class="settings-inputs flex flex-col gap-4">
+            <form class="settings-inputs flex flex-col gap-8 md:gap-12 p-4">
       
-              <div>
-                <label for="category">Category</label>
-                <select name="category" id="category">
+              <div class="flex flex-col gap-4">
+                <label class="font-bold" for="category">Category</label>
+                <select class="rounded-md p-2 border border-grey" name="category" id="category">
                   <option value="any">Any</option>
                 </select>
               </div>
       
-              <div>
-                <p>Difficulty</p>
-                <div class="inputs-difficulty flex flex-col">
-                  <div class="flex">
-                    <input type="radio" id="difficulty-any" name="difficulty" value="any" />
+              <div class="flex flex-col gap-4">
+                <p class="font-bold">Difficulty</p>
+                <div class="inputs-difficulty flex flex-col gap-4">
+                  <div class="flex gap-4">
+                    <input class="appearance-none w-5 h-5 border border-black rounded-full bg-offWhite checked:bg-purple" type="radio" id="difficulty-any" name="difficulty" value="any" />
                     <label for="difficulty-any">Any</label>
                   </div>
-                  <div class="flex">
-                    <input type="radio" id="difficulty-easy" name="difficulty" value="easy" />
+                  <div class="flex gap-4">
+                    <input class="appearance-none w-5 h-5 border border-black rounded-full bg-offWhite checked:bg-purple" type="radio" id="difficulty-easy" name="difficulty" value="easy" />
                     <label for="difficulty-easy">Easy</label>
                   </div>
-                  <div class="flex">
-                    <input type="radio" id="difficulty-medium" name="difficulty" value="medium" />
+                  <div class="flex gap-4">
+                    <input class="appearance-none w-5 h-5 border border-black rounded-full bg-offWhite checked:bg-purple" type="radio" id="difficulty-medium" name="difficulty" value="medium" />
                     <label for="difficulty-medium">Medium</label>
                   </div>
-                  <div class="flex">
-                    <input type="radio" id="difficulty-hard" name="difficulty" value="hard"/>
+                  <div class="flex gap-4">
+                    <input class="appearance-none w-5 h-5 border border-black rounded-full bg-offWhite checked:bg-purple" type="radio" id="difficulty-hard" name="difficulty" value="hard"/>
                     <label for="difficulty-hard">Hard</label>
                   </div>
                 </div>
               </div>
       
-              <div>
-                <p>Type</p>
-                <div class="inputs-type flex flex-col">
-                  <div class="flex">
-                    <input type="radio" id="type-any" name="type" value="any" />
+              <div class="flex flex-col gap-4">
+                <p class="font-bold">Type</p>
+                <div class="inputs-type flex flex-col gap-4">
+                  <div class="flex gap-4">
+                    <input class="appearance-none w-5 h-5 border border-black rounded-full bg-offWhite checked:bg-purple" type="radio" id="type-any" name="type" value="any" />
                     <label for="type-any">Any</label>
                   </div>
-                  <div class="flex">
-                    <input type="radio" id="type-multiple" name="type" value="multiple" />
+                  <div class="flex gap-4">
+                    <input class="appearance-none w-5 h-5 border border-black rounded-full bg-offWhite checked:bg-purple" type="radio" id="type-multiple" name="type" value="multiple" />
                     <label for="type-multiple">Multiple choices</label>
                   </div>
-                  <div class="flex">
-                    <input type="radio" id="type-t-f" name="type" value="boolean" />
+                  <div class="flex gap-4">
+                    <input class="appearance-none w-5 h-5 border border-black rounded-full bg-offWhite checked:bg-purple" type="radio" id="type-t-f" name="type" value="boolean" />
                     <label for="type-t-f">True or false</label>
                   </div>
                 </div>
               </div>
       
-              <div class="nb-question">
-                <label for="nb-question">Number of questions</label>
-                <div class="flex">
+              <div class="nb-question flex flex-col gap-4">
+                <label class="font-bold" for="nb-question">Number of questions</label>
+                <div class="flex gap-2">
                   <p>1</p>
-                  <input type="range" id="nb-question" name="nb-question" min="1" max="50" value="10" step="1"/>
+                  <input class="w-full h-2 bg-offWhite rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-darkerPurple [&::-webkit-slider-thumb]:border [&::-webkit-slider-thumb]:border-black" type="range" id="nb-question" name="nb-question" min="1" max="50" value="10" step="1"/>
                   <p>50</p>
                 </div>
                 <p>10</p>
               </div>
               
-              <div class="btns-settings">
-                <button class="btn-save">Save</button>
-                <button class="btn-reset">Reset</button>
+              <div class="btns-settings flex gap-4 flex-col md:flex-row items-center md:justify-between">
+                <button class="btn-save bg-black text-offWhite font-semibold px-4 py-2 border-none rounded-full flex gap-4 items-center">Save <i class="fa-solid fa-arrow-down"></i></button>
+                <button class="btn-reset bg-black text-offWhite font-semibold px-4 py-2 border-none rounded-full flex gap-4 items-center">Reset <i class="fa-solid fa-rotate-right"></i></button>
               </div>
             </form>
           </div>

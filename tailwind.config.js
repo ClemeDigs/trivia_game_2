@@ -10,7 +10,8 @@ export default {
       'green': '#B7D08E',
       'blue': '#98DAEA',
       'salmon': '#F2BD95',
-      'purple': '#D2CEFF',
+      'purple': '#ACA8D7',
+      'darkerPurple': '#716CA8',
       'offWhite': '#FDFCFA',
       'transWhite': '#FDFCFA[.5]'
     },

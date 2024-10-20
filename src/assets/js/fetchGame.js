@@ -27,13 +27,14 @@ const msgError = document.querySelector('.msg-error');
 let oldGame = JSON.parse(localStorage.getItem('oldGame')) || null;
 export let bestScores = JSON.parse(localStorage.getItem('bestScores')) || [];
 const ecranFin = document.querySelector('.ecran-fin');
+const modaleContainerBestScoresHtml = document.querySelector('.best-scores-modale');
 let scoresHtml = '';
 
 const currentUser = User.getCurrentUser();
+const bestScoresInstance = new BestScores(bestScores);
 
 btnsStart.forEach(btnStart => {
     btnStart.addEventListener('click', () => {
-        console.log(pageChanger.currentScreen);
         if (pageChanger.currentScreen === 'end') {
             restartGame();
             pageChanger.switchScreen('accueil');
@@ -93,8 +94,19 @@ function displayScore() {
     scorePercentHtml.textContent = scoreManager.calculateScorePercent(currentQuestionIndex) + ' %';
 }
 
+function sortScores() {
+    if (bestScores.length > 9){
+        bestScores.pop();
+    } 
+}
+
+function resetScores() {
+    numberQuestionHtml.textContent = 0 + ' questions';
+    scorePercentHtml.textContent = 0 + ' %';
+}
+
 function displayQuestion() {
-    console.log(pageChanger.currentScreen)
+
     if (currentQuestionIndex >= game.results.length) {
         return endGame();
     }
@@ -124,6 +136,7 @@ function displayQuestion() {
         });
     }
     progressHtml.style.width = (currentQuestionIndex * 100) / game.results.length + '%';
+    displayScore();
 }
 
 function verifyAnswer(selectedAnswer, correctAnswer) {
@@ -148,54 +161,60 @@ function resetLocalStorage() {
     localStorage.removeItem('oldGame');
     localStorage.removeItem('currentQuestion');
     localStorage.removeItem('currentUser');
+    localStorage.removeItem('score');
 }
 
 function continueGame() {
     modaleContinue.setAttribute('closing', '');
     modaleContinue.removeAttribute('open');
-    displayQuestion();
     displayScore();
+    displayQuestion();
 }
 
 function restartGame() {
+    sortScores()
+    scoreManager.currentScore = 0;
     game = {};
     currentQuestionIndex = 0; 
+    resetScores();
     resetLocalStorage();
     progressHtml.style.width = 0 + '%';
     questionHtml.textContent = '';
     responsesHtml.forEach(response => response.textContent = '');
+    scoresHtml.innerHTML = '';
     pageChanger.switchScreen('accueil');
     modaleContinue.setAttribute('closing', '');
     modaleContinue.removeAttribute('open');
-    scoresHtml.innerHTML = '';
 }
 
 function endGame() {
     pageChanger.switchScreen('end');
-    console.log(pageChanger.currentScreen)
     displayScore();
     const currentUser = JSON.parse(localStorage.getItem('currentUser'));
     const userScore = {
         user: currentUser,
         score: scoreManager.calculateScorePercent(currentQuestionIndex)
     };
+    sortScores()
     bestScores.push(userScore);
     localStorage.setItem('bestScores', JSON.stringify(bestScores));
     game = {};
     questionHtml.textContent = '';
     responsesHtml.forEach(response => response.textContent = '');
-    const bestScoresInstance = new BestScores(bestScores);
     scoresHtml = bestScoresInstance.toBestScoreLigne();
     ecranFin.appendChild(scoresHtml);
     resetLocalStorage();
 }
 
+modaleContainerBestScoresHtml.appendChild(bestScoresInstance.toBestScoreLigne());
+
 displayScore();
 gameFromLocalStorage();
 
 if (oldGame && Array.isArray(oldGame.results) && oldGame.results.length > 0) {
-    pageChanger.switchScreen('jeu');
     gameFromLocalStorage();
+    displayScore();
+    pageChanger.switchScreen('jeu');
     modaleContinue.setAttribute('open', '');
     let currentUser = JSON.parse(localStorage.getItem('currentUser'));
     currentNameHtml.textContent = currentUser.name;

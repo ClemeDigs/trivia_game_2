@@ -7,17 +7,25 @@ export default class ScoreManager {
 
     // Méthode pour calculer le pourcentage du score
     calculateScorePercent(currentQuestionIndex) {
+        // Charger le score depuis le localStorage si disponible
+        const storedScore = JSON.parse(localStorage.getItem('score'));
+
+        // Si un score existe dans le localStorage, utiliser cette valeur
+        if (storedScore) {
+            this.currentScore = storedScore;
+        }
+
+        // Calculer le pourcentage du score
         if (!isNaN(Math.round(this.currentScore * 100 / currentQuestionIndex))) {
             this.currentScorePercent = Math.round(this.currentScore * 100 / currentQuestionIndex);
         } else {
             this.currentScorePercent = 0;
         }
-        return this.currentScorePercent;
-    }
 
-    // Méthode pour stocker le score dans le localStorage
-    saveScoreToLocalStorage() {
-        localStorage.setItem('score', JSON.stringify(this.score));
+        // Sauvegarder le score actuel dans le localStorage
+        localStorage.setItem('score', JSON.stringify(this.currentScore));
+
+        return this.currentScorePercent;
     }
 
     // Méthode pour récupérer le score depuis le localStorage
@@ -43,6 +51,9 @@ export default class ScoreManager {
     getCurrentScore() {
         return this.currentScore;
     }
+
+    // Sauvegarder le score dans le localStorage
+    saveScoreToLocalStorage() {
+        localStorage.setItem('score', JSON.stringify(this.currentScore));
+    }
 }
-
-

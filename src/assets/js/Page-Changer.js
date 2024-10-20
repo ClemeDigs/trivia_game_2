@@ -24,11 +24,9 @@ export default class PageChanger {
     switchScreen(screenName) {
         this.hideAllScreens();
         this.currentScreen = screenName;
-        console.log(`Switching to screen: ${screenName}`); // Ajoute ce log
     
         switch (screenName) {
             case 'game':
-                console.log("Switching to Game Screen"); // Log
                 this.ecranJeu.classList.remove('hidden');
                 this.ecranJeu.classList.add('flex');
                 this.header.classList.remove('bg-desert');
@@ -45,7 +43,6 @@ export default class PageChanger {
                 break;
     
             case 'end':
-                console.log("Switching to End Screen"); // Log
                 this.ecranFin.classList.remove('hidden');
                 this.ecranFin.classList.add('flex');
                 this.header.classList.remove('bg-mountain');
@@ -59,7 +56,6 @@ export default class PageChanger {
                 break;
     
             case 'accueil':
-                console.log("Switching to Accueil Screen"); // Log
                 this.ecranAccueil.classList.remove('hidden');
                 this.ecranAccueil.classList.add('flex');
                 this.header.classList.remove('bg-beach');
@@ -76,6 +72,5 @@ export default class PageChanger {
                 });
         }
     }
-    
 
 }

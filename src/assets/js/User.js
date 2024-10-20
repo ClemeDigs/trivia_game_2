@@ -4,14 +4,12 @@ export default class User {
         this.avatar = avatar;
     }
 
-    // Sauvegarder l'utilisateur courant dans le localStorage
     saveCurrentUser() {
-        localStorage.setItem('currentUser', JSON.stringify(this));
+        localStorage.setItem('currentUser', JSON.stringify({ name: this.name, avatar: this.avatar }));
     }
 
-    // Récupérer l'utilisateur courant du localStorage
     static getCurrentUser() {
-        const userData = localStorage.getItem('currentUser');
-        return userData ? JSON.parse(userData) : null;
+        const currentUserData = JSON.parse(localStorage.getItem('currentUser'));
+        return currentUserData ? new User(currentUserData.name, currentUserData.avatar) : null;
     }
 }
