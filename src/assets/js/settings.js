@@ -81,7 +81,7 @@ export default class Settings {
 
     updateNbQuestionIndicator() {
         this.nbQuestionIndicator.textContent = this.nbQuestionsInput.value;
-        this.nbQuestionIndicator.className = `nb-question-indicator w-full pl-[${this.nbQuestionsInput.value * 2}%]`;
+        this.nbQuestionIndicator.className = `nb-question-indicator relative w-full left-[${this.nbQuestionsInput.value * 2}%]`;
     }
 
     /**
@@ -98,7 +98,6 @@ export default class Settings {
         return selectedValue;
     }
 
-    // Charger les paramètres à partir du localStorage au chargement de la page
     loadSettingsFromLocalStorage() {
         const savedSettings = localStorage.getItem('settings');
         if (savedSettings) {
@@ -107,7 +106,6 @@ export default class Settings {
         }
     }
 
-    // Appliquer les paramètres chargés au formulaire
     applySettingsToForm() {
         this.categoriesSelect.value = this.settings.category || 'any';
         this.difficultyRadios.forEach((radio) => {
@@ -124,7 +122,6 @@ export default class Settings {
         this.updateNbQuestionIndicator();
     }
 
-    // Nouvelle méthode pour générer l'URL en fonction des paramètres
     getUrlBySettings() {
         const url = 'https://opentdb.com/api.php';
 
