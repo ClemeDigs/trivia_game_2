@@ -1,7 +1,9 @@
 import ScoreManager from "./ScoreManager";
 import PageChanger from "./Page-Changer";
 import BestScores from './BestScores.js';
+import Dialog from "./Dialog.js";
 
+const dialogManager = new Dialog();
 const pageChanger = new PageChanger();
 const scoreManager = new ScoreManager();
 const bestScoresInstance = new BestScores();
@@ -23,6 +25,10 @@ export default class Game {
                 this.game = data;
                 localStorage.setItem('oldGame', JSON.stringify(this.game));
                 this.displayQuestion();
+                const currentScreen = pageChanger.currentScreen;
+                if (currentScreen === 'end') {
+                    this.restartGame(); 
+                }
             })
             .catch((error) => {
                 console.error('Erreur de fetch:', error);
@@ -106,10 +112,10 @@ export default class Game {
     }
 
     resetGame() {
+        this.resetLocalStorage();
         this.game = {};
         this.questionHtml.textContent = '';
         this.responsesHtml.forEach((response) => response.textContent = '');
-        this.resetLocalStorage();
     }
 
     resetLocalStorage() {
@@ -125,6 +131,7 @@ export default class Game {
         scoreManager.currentScore = 0;
         scoreManager.resetScores();
         scoreManager.resetProgressBar();
+        localStorage.removeItem('currentUser');
         this.modaleContinue.setAttribute('closing', '');
         this.modaleContinue.removeAttribute('open');
         pageChanger.switchScreen('accueil');

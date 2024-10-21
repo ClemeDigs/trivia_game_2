@@ -1,117 +1,151 @@
-// Sélection des éléments HTML
-const formSettings = document.querySelector('.settings-inputs');
-const categoriesSelect = document.querySelector('#category');
-const difficultyRadios = document.querySelectorAll('input[name="difficulty"]');
-const typeRadios = document.querySelectorAll('input[name="type"]');
-const nbQuestionsInput = document.querySelector('#nb-question');
-const btnSave = document.querySelector('.btn-save');
-const btnReset = document.querySelector('.btn-reset');
-const nbQuestionIndicator = document.querySelector('.nb-question-indicator');
+export default class Settings {
+    constructor() {
+        this.formSettings = document.querySelector('.settings-inputs');
+        this.categoriesSelect = document.querySelector('#category');
+        this.difficultyRadios = document.querySelectorAll('input[name="difficulty"]');
+        this.typeRadios = document.querySelectorAll('input[name="type"]');
+        this.nbQuestionsInput = document.querySelector('#nb-question');
+        this.btnSave = document.querySelector('.btn-save');
+        this.btnReset = document.querySelector('.btn-reset');
+        this.nbQuestionIndicator = document.querySelector('.nb-question-indicator');
 
-// Objet pour stocker les paramètres de jeu
-let settings = {
-    category: '',
-    difficulty: '',
-    type: '',
-    nbQuestions: 10
-};
+        this.settings = {
+            category: '',
+            difficulty: '',
+            type: '',
+            nbQuestions: 10
+        };
 
-// Récupérer les catégories depuis l'API et les ajouter au menu déroulant
-fetch('https://opentdb.com/api_category.php')
-    .then((response) => response.json())
-    .then((data) => {
-        data.trivia_categories.forEach((cat) => {
-            const optionElement = document.createElement('option');
-            optionElement.textContent = cat.name;
-            optionElement.setAttribute('value', cat.id);
-            categoriesSelect.appendChild(optionElement);
+        this.loadSettingsFromLocalStorage();
+        this.init();
+    }
+
+    init() {
+        this.fetchCategories();
+
+        this.btnSave.addEventListener('click', (e) => this.handleSave(e));
+        this.btnReset.addEventListener('click', (e) => this.handleReset(e));
+        this.nbQuestionsInput.addEventListener('change', () => this.updateNbQuestionIndicator());
+    }
+
+    fetchCategories() {
+        fetch('https://opentdb.com/api_category.php')
+            .then(response => response.json())
+            .then(data => {
+                data.trivia_categories.forEach(cat => {
+                    const optionElement = document.createElement('option');
+                    optionElement.textContent = cat.name;
+                    optionElement.setAttribute('value', cat.id);
+                    this.categoriesSelect.appendChild(optionElement);
+                });
+            })
+            .catch(error => {
+                console.error('Erreur lors du fetch des catégories:', error);
+            });
+    }
+
+    /**
+     * @param {Event} e
+     */
+    handleSave(e) {
+        e.preventDefault();
+
+        this.settings.category = this.categoriesSelect.value;
+        this.settings.difficulty = this.getSelectedRadioValue(this.difficultyRadios);
+        this.settings.type = this.getSelectedRadioValue(this.typeRadios);
+        this.settings.nbQuestions = this.nbQuestionsInput.value;
+
+        localStorage.setItem('settings', JSON.stringify(this.settings));
+    }
+
+    /**
+     * @param {Event} e
+     */
+    handleReset(e) {
+        e.preventDefault();
+
+        this.settings = {
+            category: '',
+            difficulty: '',
+            type: '',
+            nbQuestions: 10
+        };
+
+        this.categoriesSelect.value = 'any';
+        this.difficultyRadios[0].checked = true; 
+        this.typeRadios[0].checked = true; 
+        this.nbQuestionsInput.value = 10;
+
+        localStorage.setItem('settings', JSON.stringify(this.settings));
+    }
+
+    updateNbQuestionIndicator() {
+        this.nbQuestionIndicator.textContent = this.nbQuestionsInput.value;
+        this.nbQuestionIndicator.className = `nb-question-indicator w-full pl-[${this.nbQuestionsInput.value * 2}%]`;
+    }
+
+    /**
+     * @param {NodeList} radioList
+     * @returns {string}
+     */
+    getSelectedRadioValue(radioList) {
+        let selectedValue = '';
+        radioList.forEach((radio) => {
+            if (radio.checked) {
+                selectedValue = radio.value;
+            }
         });
-    })
-    .catch((error) => {
-        console.error('Erreur lors du fetch des catégories:', error);
-    });
+        return selectedValue;
+    }
 
-// Fonction pour récupérer la valeur sélectionnée des boutons radio
-function getSelectedRadioValue(radioList) {
-    let selectedValue = '';
-    radioList.forEach((radio) => {
-        if (radio.checked) {
-            selectedValue = radio.value;
+    // Charger les paramètres à partir du localStorage au chargement de la page
+    loadSettingsFromLocalStorage() {
+        const savedSettings = localStorage.getItem('settings');
+        if (savedSettings) {
+            this.settings = JSON.parse(savedSettings);
+            this.applySettingsToForm();
         }
-    });
-    return selectedValue;
+    }
+
+    // Appliquer les paramètres chargés au formulaire
+    applySettingsToForm() {
+        this.categoriesSelect.value = this.settings.category || 'any';
+        this.difficultyRadios.forEach((radio) => {
+            if (radio.value === this.settings.difficulty) {
+                radio.checked = true;
+            }
+        });
+        this.typeRadios.forEach((radio) => {
+            if (radio.value === this.settings.type) {
+                radio.checked = true;
+            }
+        });
+        this.nbQuestionsInput.value = this.settings.nbQuestions;
+        this.updateNbQuestionIndicator();
+    }
+
+    // Nouvelle méthode pour générer l'URL en fonction des paramètres
+    getUrlBySettings() {
+        const url = 'https://opentdb.com/api.php';
+
+        if (!this.settings) {
+            return `${url}?amount=10`;
+        }
+
+        let settingsUrl = `${url}?amount=${this.settings.nbQuestions}`;
+
+        if (this.settings.category && this.settings.category !== 'any') {
+            settingsUrl += `&category=${this.settings.category}`;
+        }
+        if (this.settings.difficulty && this.settings.difficulty !== 'any') {
+            settingsUrl += `&difficulty=${this.settings.difficulty}`;
+        }
+        if (this.settings.type && this.settings.type !== 'any') {
+            settingsUrl += `&type=${this.settings.type}`;
+        }
+
+        return settingsUrl;
+    }
 }
 
-// Gestion du bouton "Save"
-btnSave.addEventListener('click', (e) => {
-    e.preventDefault();
 
-    // Récupérer les valeurs sélectionnées et les stocker dans l'objet settings
-    settings.category = categoriesSelect.value;
-    settings.difficulty = getSelectedRadioValue(difficultyRadios);
-    settings.type = getSelectedRadioValue(typeRadios);
-    settings.nbQuestions = nbQuestionsInput.value;
-
-    // Sauvegarder les paramètres dans le localStorage
-    localStorage.setItem('settings', JSON.stringify(settings));
-
-    // Afficher les valeurs dans la console (ou effectuer une autre action)
-    console.log('Catégorie:', settings.category);
-    console.log('Difficulté:', settings.difficulty);
-    console.log('Type:', settings.type);
-    console.log('Nombre de questions:', settings.nbQuestions);
-});
-
-// Gestion du bouton "Reset"
-btnReset.addEventListener('click', (e) => {
-    e.preventDefault();
-
-    // Réinitialiser les paramètres dans l'objet settings
-    settings.category = '';
-    settings.difficulty = '';
-    settings.type = '';
-    settings.nbQuestions = 10;
-
-    // Réinitialiser le formulaire dans l'interface utilisateur
-    categoriesSelect.value = 'any';
-    difficultyRadios[0].checked = true; // Sélectionner "Any" par défaut
-    typeRadios[0].checked = true; // Sélectionner "Any" par défaut
-    nbQuestionsInput.value = 10;
-
-    // Sauvegarder les paramètres réinitialisés dans le localStorage
-    localStorage.setItem('settings', JSON.stringify(settings));
-
-    console.log('Paramètres réinitialisés');
-});
-
-nbQuestionsInput.addEventListener('change', () => {
-    nbQuestionIndicator.textContent = nbQuestionsInput.value;
-    nbQuestionIndicator.className = `nb-question-indicator w-full pl-[${(nbQuestionsInput.value)*2}%]`;
-})
-
-
-// Charger les paramètres à partir du localStorage au chargement de la page
-
-    const savedSettings = localStorage.getItem('settings');
-    if (savedSettings) {
-        // Si des paramètres sont trouvés, les appliquer
-        settings = JSON.parse(savedSettings);
-
-        // Appliquer les valeurs aux éléments du formulaire
-        categoriesSelect.value = settings.category || 'any';
-
-        difficultyRadios.forEach((radio) => {
-            if (radio.value === settings.difficulty) {
-                radio.checked = true;
-            }
-        });
-        typeRadios.forEach((radio) => {
-            if (radio.value === settings.type) {
-                radio.checked = true;
-            }
-        });
-        nbQuestionsInput.value = settings.nbQuestions;
-        nbQuestionIndicator.textContent = nbQuestionsInput.value;
-        nbQuestionIndicator.className = `nb-question-indicator w-full pl-[${(nbQuestionsInput.value)*2}%]`;
-    }
-;
