@@ -1,50 +1,55 @@
 export default class BestScores {
-    constructor() {
-        this.bestScores = JSON.parse(localStorage.getItem('bestScores')) || [];
-        this.ecranFin = document.querySelector('.ecran-fin');
-        this.modaleContainerBestScoresHtml = document.querySelector('.best-scores-modale');
-        this.scoresHtml = '';
+  constructor() {
+    this.bestScores = [];
+    this.savedBestScores = JSON.parse(localStorage.getItem("bestScores")) || [];
+    this.bestScoresContainer = document.querySelector(".best-scores-container");
+    this.modaleContainerBestScoresHtml = document.querySelector(
+      ".best-scores-modale"
+    );
+  }
+
+  sortScores() {
+    this.savedBestScores.sort((a, b) => b.score - a.score);
+    if (this.savedBestScores.length > 10) {
+      this.savedBestScores = this.savedBestScores.slice(0, 10);
     }
+  }
 
-    sortScores() {
-        this.bestScores.sort((a, b) => {
-            return b.score - a.score;
-        });
+  toBestScoreLigne() {
+    let scoresHtml = "";
+    this.savedBestScores.forEach((bestScore) => {
+      const user =
+        typeof bestScore.user === "string"
+          ? JSON.parse(bestScore.user)
+          : bestScore.user;
+      const date = new Date(bestScore.date);
+      const options = { year: "numeric", month: "long", day: "numeric" };
 
-        if (this.bestScores.length > 10) {
-            this.bestScores = this.bestScores.slice(0, 10);
-        }
-    }
+      scoresHtml += `
+        <div class="flex items-center gap-3 md:gap-4 lg:gap-6">
+          <img class="w-[50px] md:w-[65px] lg:w-[80px]" src="${
+            user.avatar
+          }" alt="avatar de ${user.name}">
+          <p class="font-bold">${user.name}</p>
+          <p class="bg-score-img bg-[length:70%] lg:bg-[length:75%] bg-no-repeat bg-center text-[16px] md:text-[20px] lg:text-[38px] font-semibold text-center text-offWhite drop-shadow-trivia px-4 py-5 md:px-8 md:py-10">
+            ${bestScore.score} %
+          </p>
+          <p class="text-sm font-bold">${date.toLocaleDateString(
+            "en-US",
+            options
+          )}</p>
+        </div>
+      `;
+    });
+    return scoresHtml;
+  }
 
-    toBestScoreLigne() {
-        const scoresContainer = document.createElement('div');
-        
-        this.bestScores.forEach(bestScore => {
-            const user = typeof bestScore.user === 'string' ? JSON.parse(bestScore.user) : bestScore.user;
-            
-            const divBestScore = document.createElement('div');
-            divBestScore.className = 'flex items-center gap-6';
-            divBestScore.innerHTML = `
-                <img class="w-[60px]" src="${user.avatar}" alt="avatar de ${user.name}">
-                <p class="font-bold">${user.name}</p>
-                <p class="bg-score-img bg-[length:80%] bg-no-repeat bg-center md:text-[3.125rem] font-semibold text-center text-offWhite drop-shadow-trivia px-4 py-5 md:px-8 md:py-10">${bestScore.score} %</p>
-            `;
-            scoresContainer.appendChild(divBestScore);
-        });
+  displayBestScores() {
+    this.sortScores();
+    const scoresHtml = this.toBestScoreLigne();
 
-        return scoresContainer;
-    }
-
-    displayBestScores() {
-        this.ecranFin.innerHTML = '';
-        this.modaleContainerBestScoresHtml.innerHTML = '';
-
-        this.sortScores();
-        this.scoresHtml = this.toBestScoreLigne();
-        
-        this.ecranFin.appendChild(this.scoresHtml);
-
-        const scoresClone = this.scoresHtml.cloneNode(true);  
-        this.modaleContainerBestScoresHtml.appendChild(scoresClone);
-    }
+    // Remplir chaque conteneur avec les scores sans duplication
+    this.bestScoresContainer.innerHTML = scoresHtml;
+    this.modaleContainerBestScoresHtml.innerHTML = scoresHtml;
+  }
 }

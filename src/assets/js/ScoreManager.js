@@ -1,73 +1,75 @@
-
 export default class ScoreManager {
-    constructor() {
-        this.scorePercentHtml = document.querySelector('.score');
-        this.numberQuestionHtml = document.querySelector('.number-questions');
-        this.progressHtml = document.querySelector('.progress');
+  constructor() {
+    this.scorePercentHtml = document.querySelector(".score");
+    this.numberQuestionHtml = document.querySelector(".number-questions");
+    this.progressHtml = document.querySelector(".progress");
 
-        this.score = [];
-        this.currentScore = 0;
-        this.currentScorePercent = 0;
+    this.score = [];
+    this.currentScore = 0;
+    this.currentScorePercent = 0;
+  }
 
+  calculateScorePercent(currentQuestionIndex) {
+    const storedScore = JSON.parse(localStorage.getItem("score"));
+
+    if (storedScore) {
+      this.currentScore = storedScore;
     }
 
-    calculateScorePercent(currentQuestionIndex) {
-        const storedScore = JSON.parse(localStorage.getItem('score'));
-
-        if (storedScore) {
-            this.currentScore = storedScore;
-        }
-
-        if (!isNaN(Math.round(this.currentScore * 100 / currentQuestionIndex))) {
-            this.currentScorePercent = Math.round(this.currentScore * 100 / currentQuestionIndex);
-        } else {
-            this.currentScorePercent = 0;
-        }
-
-        localStorage.setItem('score', JSON.stringify(this.currentScore));
-
-        return this.currentScorePercent;
+    if (currentQuestionIndex > 0) {
+      this.currentScorePercent = Math.round(
+        (this.currentScore * 100) / currentQuestionIndex
+      );
+    } else {
+      this.currentScorePercent = 0;
     }
 
-    displayScore(currentQuestionIndex) {
-        this.numberQuestionHtml.textContent = currentQuestionIndex + ' questions';
-        this.scorePercentHtml.textContent = this.calculateScorePercent(currentQuestionIndex) + ' %';
-    }
+    localStorage.setItem("score", JSON.stringify(this.currentScore));
 
-    updateProgressBar(currentQuestionIndex, game) {
-        this.progressHtml.style.width = (currentQuestionIndex * 100) / game.results.length + '%';
-    }
+    return this.currentScorePercent;
+  }
 
-    resetProgressBar() {
-        this.progressHtml.style.width = 0 + '%';
-    }
+  displayScore(currentQuestionIndex) {
+    this.numberQuestionHtml.textContent = currentQuestionIndex + " questions";
+    this.scorePercentHtml.textContent =
+      this.calculateScorePercent(currentQuestionIndex) + " %";
+  }
 
-    resetScores() {
-        this.numberQuestionHtml.textContent = 0 + ' questions';
-        this.scorePercentHtml.textContent = 0 + ' %';
-    }
+  updateProgressBar(currentQuestionIndex, game) {
+    this.progressHtml.style.width =
+      (currentQuestionIndex * 100) / game.results.length + "%";
+  }
 
-    loadScoreFromLocalStorage() {
-        const storedScore = JSON.parse(localStorage.getItem('score')) || [];
-        this.score = storedScore;
-        return this.score;
-    }
+  resetProgressBar() {
+    this.progressHtml.style.width = 0 + "%";
+  }
 
-    addScore(scorePercent, totalQuestions) {
-        this.score.push(scorePercent);
-        this.score.push(totalQuestions);
-        this.saveScoreToLocalStorage();
-    }
+  resetScores() {
+    this.numberQuestionHtml.textContent = 0 + " questions";
+    this.scorePercentHtml.textContent = 0 + "&nbsp;%";
+  }
 
-    incrementScore() {
-        this.currentScore++;
-    }
+  loadScoreFromLocalStorage() {
+    const storedScore = JSON.parse(localStorage.getItem("score")) || [];
+    this.score = storedScore;
+    return this.score;
+  }
 
-    getCurrentScore() {
-        return this.currentScore;
-    }
+  addScore(scorePercent, totalQuestions) {
+    this.score.push(scorePercent);
+    this.score.push(totalQuestions);
+    this.saveScoreToLocalStorage();
+  }
 
-    saveScoreToLocalStorage() {
-        localStorage.setItem('score', JSON.stringify(this.currentScore));
-    }
+  incrementScore() {
+    this.currentScore++;
+  }
+
+  getCurrentScore() {
+    return this.currentScore;
+  }
+
+  saveScoreToLocalStorage() {
+    localStorage.setItem("score", JSON.stringify(this.currentScore));
+  }
 }
